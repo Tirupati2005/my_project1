@@ -1,0 +1,13 @@
+{% extends 'MainApp/base.html' %}
+
+{% block title %}
+main page
+{% endblock title %}
+
+{% block content %}
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{form}}
+    <button type="submit" class="ui button bg-primary">Upload CSV</button>
+</form>
+{% endblock content %}
