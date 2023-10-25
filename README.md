@@ -45,13 +45,13 @@ class CSVUploadForm(forms.Form):
     timeframe = forms.IntegerField()
 
 ============================================
-
-
 # MainApp/views.py
 from django.shortcuts import render
 from django.http import JsonResponse, FileResponse
 import csv
 import json
+from .forms import CSVUploadForm
+import io
 
 def upload_csv(request):
     if request.method == 'POST':
@@ -62,7 +62,7 @@ def upload_csv(request):
 
             # Process the CSV file
             candles = []
-            with csv_file as file:
+            with io.TextIOWrapper(csv_file, encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     candle = {
@@ -90,22 +90,63 @@ def upload_csv(request):
     else:
         form = CSVUploadForm()
 
-    return render(request, 'upload.html', {'form': form})
+    return render(request, 'MainApp/upload.html', {'form': form})
+========================================================================
+<!-- MainApp/templates/base.html -->
+
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!-- custom css -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    
+    <title>Upload - {% block title %}{% endblock title %}</title>
+  </head>
+  <body>
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock content %}
+    </h1>
+  </body>
+</html>
+
+
 ========================================================================
 
-
 <!-- MainApp/templates/upload.html -->
-<form method="post" enctype="multipart/form-data">
+
+
+{% extends 'MainApp/base.html' %}
+
+{% block title %}
+main page
+{% endblock title %}
+
+{% block content %}
+<form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload CSV</button>
+    {{form}}
+    <button type="submit" class="ui button bg-primary">Upload CSV</button>
 </form>
-
-
-
+{% endblock content %}
 
 ================================================================
+<---MainApp/static/style.css
 
+.not-visible {
+    display: none;
+}
+========================================================================
 
 # TradingProject/urls.py
 from django.contrib import admin
